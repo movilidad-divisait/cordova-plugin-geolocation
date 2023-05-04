@@ -80,16 +80,11 @@
     return YES;
 }
 
+// comprueba si la aplicación tiene permisos para ver la ubicación del usuario
 - (BOOL)isLocationServicesEnabled
 {
-    BOOL locationServicesEnabledInstancePropertyAvailable = [self.locationManager respondsToSelector:@selector(locationServicesEnabled)]; // iOS 3.x
-    BOOL locationServicesEnabledClassPropertyAvailable = [CLLocationManager respondsToSelector:@selector(locationServicesEnabled)]; // iOS 4.x
-    
-    if (locationServicesEnabledClassPropertyAvailable) { // iOS 4.x
-        return [CLLocationManager locationServicesEnabled];
-    } else {
-        return NO;
-    }
+    CLAuthorizationStatus authorizationStatus = [CLLocationManager authorizationStatus];
+    return (authorizationStatus == kCLAuthorizationStatusAuthorizedWhenInUse || authorizationStatus == kCLAuthorizationStatusAuthorizedAlways);
 }
 
 - (void)startLocation:(BOOL)enableHighAccuracy
@@ -213,7 +208,7 @@
                 }
             }
             
-            if (!__locationStarted || (__highAccuracyEnabled != enableHighAccuracy)) {
+            if (!self->__locationStarted || (self->__highAccuracyEnabled != enableHighAccuracy)) {
                 // add the callbackId into the array so we can call back when get data
                 @synchronized (self.locationData.locationCallbacks) {
                     if (callbackId != nil) {
